@@ -1,0 +1,5 @@
+.game-table-cell {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: '';
+}
