@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom'
 import Leaderboard from '@mui/icons-material/Leaderboard'
 
 import './Games.css'
-import { useDatabase } from '../hooks/useDatabase'
+import { useDatabase } from '../contexts/DatabaseContext'
 import { useGamesByField } from '../hooks/useGamesByField'
 
 export default function Games() {
-  const database = useDatabase(0)
+  const { database } = useDatabase()
   const gamesByField = useGamesByField(database)
 
   return (

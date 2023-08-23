@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './index.css'
 import Games from './pages/Games'
 import Standings from './pages/Standings'
+import { DatabaseContextProvider } from './contexts/DatabaseContext'
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,8 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <DatabaseContextProvider>
+      <RouterProvider router={router} />
+    </DatabaseContextProvider>
   </React.StrictMode>
 )

@@ -1,4 +1,12 @@
 import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from 'react'
+
+import {
   ApiResult,
   ApiResultWithDatabase,
   Database,
@@ -8,29 +16,26 @@ import {
   Team,
   hasData,
 } from '../types'
-import { useEffect, useState } from 'react'
 
 const localStorageKey = 'apiResponse'
 
-export function useDatabase(counter: number): Database {
+export interface DatabaseContext {
+  database: Database
+  refresh: () => void
+}
+
+const databaseContext = createContext<DatabaseContext>({
+  database: getEmptyDatabase(),
+  refresh: () => {},
+})
+
+export const DatabaseContextProvider = ({
+  children,
+}: {
+  children: ReactNode
+}) => {
   const [database, setDatabase] = useState<Database>(() => {
-    const emptyDatabase: Database = {
-      metadata: {
-        databaseVersion: `${new Date().getFullYear()}`,
-        dataVersion: 0,
-        messageVersion: 0,
-        resultVersion: 0,
-        sponsorsVersion: 0,
-        newDatabaseVersion: 'false',
-      },
-      categories: [],
-      pools: [],
-      teams: [],
-      fields: [],
-      referees: [],
-      games: [],
-      results: [],
-    }
+    const emptyDatabase = getEmptyDatabase()
 
     const localApiResult = localStorage.getItem(localStorageKey)
     return localApiResult
@@ -38,35 +43,43 @@ export function useDatabase(counter: number): Database {
       : emptyDatabase
   })
 
+  const refresh = () => {
+    const fetchData = async () => {
+      const {
+        databaseVersion,
+        dataVersion,
+        messageVersion,
+        resultVersion,
+        sponsorsVersion,
+      } = database.metadata
+
+      const response = await fetch(
+        `/getData.php?databaseversion=${databaseVersion}&dataversion=${dataVersion}&messageversion=${messageVersion}&resultversion=${resultVersion}&sponsorsversion=${sponsorsVersion}`
+      )
+
+      if (!response.ok) throw new Error(response.statusText)
+
+      const apiResult: ApiResult = await response.json()
+
+      const newDatabase = parseApiResult(apiResult, database)
+
+      // Serializing the databse is hard because of all the internal references
+      // We already know how to deserialize API results, so use that as an intermediate state
+      localStorage.setItem(
+        localStorageKey,
+        JSON.stringify(toApiResult(newDatabase))
+      )
+
+      setDatabase(newDatabase)
+    }
+
+    fetchData().catch(console.error)
+  }
+
   useEffect(
-    () => {
-      const fetchData = async () => {
-        const {
-          databaseVersion,
-          dataVersion,
-          messageVersion,
-          resultVersion,
-          sponsorsVersion,
-        } = database.metadata
-
-        const response = await fetch(
-          `/getData.php?databaseversion=${databaseVersion}&dataversion=${dataVersion}&messageversion=${messageVersion}&resultversion=${resultVersion}&sponsorsversion=${sponsorsVersion}`
-        )
-
-        if (!response.ok) throw new Error(response.statusText)
-
-        const apiResult: ApiResult = await response.json()
-
-        localStorage.setItem(localStorageKey, JSON.stringify(apiResult))
-
-        setDatabase(parseApiResult(apiResult, database))
-      }
-
-      fetchData().catch(console.error)
-    },
+    refresh,
     /* eslint-disable react-hooks/exhaustive-deps */
     [
-      counter,
       database.metadata.databaseVersion,
       database.metadata.dataVersion,
       database.metadata.resultVersion,
@@ -74,7 +87,35 @@ export function useDatabase(counter: number): Database {
     /* eslint-enable */
   )
 
-  return database
+  return (
+    <databaseContext.Provider value={{ database, refresh }}>
+      {children}
+    </databaseContext.Provider>
+  )
+}
+
+export function useDatabase(): DatabaseContext {
+  return useContext(databaseContext)
+}
+
+function getEmptyDatabase(): Database {
+  return {
+    metadata: {
+      databaseVersion: `${new Date().getFullYear()}`,
+      dataVersion: 0,
+      messageVersion: 0,
+      resultVersion: 0,
+      sponsorsVersion: 0,
+      newDatabaseVersion: 'false',
+    },
+    categories: [],
+    pools: [],
+    teams: [],
+    fields: [],
+    referees: [],
+    games: [],
+    results: [],
+  }
 }
 
 function parseApiResult(apiResult: ApiResult, database: Database): Database {
@@ -179,6 +220,53 @@ function parseDatabase(apiResult: ApiResultWithDatabase): Database {
   }
 }
 
+function toApiResult(database: Database): ApiResultWithDatabase {
+  return {
+    categories: database.categories,
+    pools: database.pools.map(({ id, name, abbreviation, category, rank }) => ({
+      id,
+      name,
+      abbreviation,
+      category: category.id,
+      rank,
+    })),
+    teams: database.teams,
+    fields: database.fields,
+    referees: database.referees,
+    games: database.games.map(
+      ({
+        id,
+        field,
+        date,
+        pool,
+        poolAbbreviation,
+        homeTeam,
+        homeTeamName,
+        awayTeam,
+        awayTeamName,
+        referee1,
+        referee2,
+      }) => ({
+        id,
+        field: field?.id ?? -1,
+        date: formatDate(date),
+        pool: pool?.id ?? -1,
+        poolAbbreviation,
+        homeTeam: homeTeam?.id ?? -1,
+        homeTeamName,
+        awayTeam: awayTeam?.id ?? -1,
+        awayTeamName,
+        referee1: referee1?.id ?? -1,
+        referee1Name: referee1?.name ?? '',
+        referee2: referee2?.id ?? -1,
+        referee2Name: referee2?.name ?? '',
+      })
+    ),
+    results: database.results,
+    ...database.metadata,
+  }
+}
+
 function byId<T extends { id: number }>(ts: T[]): Record<number, T> {
   return ts.reduce<Record<number, T>>((r, t) => {
     r[t.id] = t
@@ -205,4 +293,16 @@ function parseDate(dateString: string): Date {
   const Z = '+02:00'
 
   return new Date(`${YYYY}-${MM}-${DD}T${HH}:${mm}:${ss}.${sss}${Z}`)
+}
+
+function formatDate(date: Date): string {
+  const [DD, MM, HH, mm, ss] = [
+    date.getDate(),
+    date.getMonth() + 1,
+    date.getUTCHours() + 2,
+    date.getMinutes(),
+    date.getSeconds(),
+  ].map((x) => `0${x}`.slice(-2))
+
+  return `${DD}-${MM}-${date.getFullYear()} ${HH}:${mm}:${ss}`
 }
