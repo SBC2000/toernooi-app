@@ -20,15 +20,16 @@ describe('getGamesByField', () => {
     },
   ]
 
+  const homeTeam: Team = { id: 1, name: 'Home' }
+  const awayTeam: Team = { id: 2, name: 'Away' }
   const pool: Pool = {
     id: 1,
     name: 'Heren 1',
     abbreviation: 'H1',
     category: { id: 1, name: 'Heren', rank: 1 },
     rank: 1,
+    teams: [homeTeam, awayTeam],
   }
-  const homeTeam: Team = { id: 1, name: 'Home' }
-  const awayTeam: Team = { id: 2, name: 'Away' }
 
   const createGame = (id: number, fieldId: number, date: Date): Game => ({
     id,

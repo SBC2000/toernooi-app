@@ -5,6 +5,7 @@ import {
   Game,
   Pool,
   Result,
+  Team,
   hasData,
 } from '../types'
 import { useEffect, useState } from 'react'
@@ -100,6 +101,7 @@ function parseDatabase(apiResult: ApiResultWithDatabase): Database {
       abbreviation,
       category: categoryById[categoryId],
       rank,
+      teams: [],
     })
   )
 
@@ -139,6 +141,24 @@ function parseDatabase(apiResult: ApiResultWithDatabase): Database {
       }
     }
   )
+
+  const teamsByPool = games.reduce<Record<number, Set<Team>>>(
+    (result, game) => {
+      if (!game.pool) return result
+
+      const poolTeams = (result[game.pool.id] ??= new Set())
+
+      if (game.homeTeam) poolTeams.add(game.homeTeam)
+      if (game.awayTeam) poolTeams.add(game.awayTeam)
+
+      return result
+    },
+    {}
+  )
+
+  for (const pool of pools) {
+    pool.teams = Array.from(teamsByPool[pool.id] ?? [])
+  }
 
   return {
     metadata: {

@@ -18,6 +18,7 @@ export interface Pool {
   abbreviation: string
   category: Category
   rank: number
+  teams: Team[]
 }
 
 export interface Team {
@@ -56,11 +57,11 @@ export interface Game {
   id: number
   field: Field
   date: Date
-  pool: Pool
+  pool: Pool | undefined
   poolAbbreviation: string
-  homeTeam: Team
+  homeTeam: Team | undefined
   homeTeamName: string
-  awayTeam: Team
+  awayTeam: Team | undefined
   awayTeamName: string
   referee1: Referee | undefined
   referee2: Referee | undefined

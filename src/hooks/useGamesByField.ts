@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import { Database, Game } from '../types'
 
-export function useGamesByField(database: Database) {
+export function useGamesByField(database: Database): GamesByField[] {
   return useMemo(
     () => getGamesByField(database),
     // These 3 metadata props uniquely determine database
