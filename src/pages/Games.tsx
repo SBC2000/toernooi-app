@@ -27,7 +27,7 @@ export default function Games() {
         <div className="flex w-full border-t-2 border-sbcOrange-500">
           {gamesByField.map(({ fieldName }, i) => (
             <h2
-              className="flex-auto text-center text-sbcBlue-500 uppercase px-2 my-2 border-l first:border-l-0 border-sbcOrange-500"
+              className="flex-auto text-center text-sbcBlue-500 uppercase px-2 mt-2 mb-1 border-l first:border-l-0 border-sbcOrange-500"
               key={fieldName}
               onClick={() =>
                 tabRefs[i]?.current?.scrollIntoView({
@@ -46,9 +46,16 @@ export default function Games() {
               key={fieldName}
               ref={tabRefs[i]}
             >
+              <div className="sticky top-0 bg-white w-full">
+                <div
+                  className="bg-sbcOrange-500 w-1/4 h-1"
+                  style={{ marginLeft: `${i * 25}vw` }}
+                ></div>
+              </div>
               {gameDays.map(({ date, games }) => (
                 <div key={date}>
-                  <h3 className="sticky top-0 bg-sbcOrange-500 text-sbcBlue-500 text-center text-lg leading-10">
+                  <h3 className="text-sbcBlue-500 text-center text-lg leading-10 mt-2">
+                    {/* <h3 className="bg-sbcOrange-500 text-sbcBlue-500 text-center text-lg leading-10"> */}
                     {date}
                   </h3>
                   <GameTable games={games}></GameTable>
@@ -100,7 +107,7 @@ function GameTable(props: { games: Game[] }) {
   }))
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full border-t border-sbcBlue-500">
       {gameColomns.map(({ game, columns }) => (
         <div className="flex pb-1 border-b border-sbcBlue-500" key={game.id}>
           {columns.map(({ top, bottom, className }, i) => (

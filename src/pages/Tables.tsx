@@ -26,7 +26,7 @@ export default function Standings() {
         <div className="flex w-full border-t-2 border-sbcOrange-500">
           {scoresByCategory.map(({ category }, i) => (
             <h2
-              className="flex-auto text-center text-sbcBlue-500 uppercase px-2 my-2 border-l first:border-l-0 border-sbcOrange-500"
+              className="flex-auto text-center text-sbcBlue-500 uppercase px-2 mt-2 mb-1 border-l first:border-l-0 border-sbcOrange-500"
               key={category.id}
               onClick={() =>
                 tabRefs[i]?.current?.scrollIntoView({
@@ -45,6 +45,12 @@ export default function Standings() {
               key={category.id}
               ref={tabRefs[i]}
             >
+              <div className="sticky top-0 bg-white w-full">
+                <div
+                  className="bg-sbcOrange-500 w-1/3 h-1"
+                  style={{ marginLeft: `${i * 33.3333}vw` }}
+                ></div>
+              </div>
               {scoresByPool.map(({ pool, scores }) => (
                 <div key={pool.abbreviation}>
                   <h3 className="text-sbcBlue-500 text-lg leading-8 mt-2">
