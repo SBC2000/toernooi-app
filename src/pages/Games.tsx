@@ -1,9 +1,7 @@
 import { useRef } from 'react'
-import { Link } from 'react-router-dom'
 
-import './Games.css'
-import footer from './footer.png'
-
+import Footer from '../components/Footer'
+import Header from '../components/Header'
 import { useDatabase } from '../contexts/DatabaseContext'
 import { useGamesByField } from '../hooks/useGamesByField'
 import { Game } from '../types'
@@ -25,15 +23,7 @@ export default function Games() {
   return (
     <div className="w-screen h-screen flex justify-center">
       <div className="flex flex-col w-full max-w-md">
-        <Link
-          className="absolute  text-sbcOrange-500 text-3xl font-medium px-2"
-          to="/"
-        >
-          {'\u2039'}
-        </Link>
-        <h1 className="w-full text-xl leading-10 text-sbcBlue-500 text-center border-b-4 border-sbcBlue-500 mb-0.5">
-          Wedstrijden
-        </h1>
+        <Header title="Wedstrijden"></Header>
         <div className="flex w-full border-t-2 border-sbcOrange-500">
           {gamesByField.map(({ fieldName }, i) => (
             <h2
@@ -67,11 +57,7 @@ export default function Games() {
             </div>
           ))}
         </div>
-        <div className="w-full border-t-2 border-sbcOrange-500 h-10">
-          <div className="h-full border-t-4 border-sbcBlue-500 mt-0.5 flex justify-center">
-            <img src={footer} alt="SBC2000" className="h-full p-2"></img>
-          </div>
-        </div>
+        <Footer></Footer>
       </div>
     </div>
   )
