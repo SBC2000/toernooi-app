@@ -1,0 +1,22 @@
+.home-background {
+  background-image: url('./background.jpg');
+}
+
+.home-player {
+  background-image: url('./player.png');
+  background-size: contain;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+}
+
+.home-icon-games {
+  background-image: url('./iconGames.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.home-icon-tables {
+  background-image: url('./iconTables.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+}
