@@ -47,7 +47,7 @@ export default function Standings() {
             >
               {scoresByPool.map(({ pool, scores }) => (
                 <div key={pool.abbreviation}>
-                  <h3 className="sticky top-0 bg-sbcOrange-500 text-sbcBlue-500 text-center text-xl leading-10">
+                  <h3 className="text-sbcBlue-500 text-lg leading-8 mt-2">
                     {pool.name}
                   </h3>
                   <PoolTable scores={scores}></PoolTable>
@@ -63,5 +63,45 @@ export default function Standings() {
 }
 
 function PoolTable(props: { scores: Score[] }) {
-  return <div>Test</div>
+  const { scores } = props
+
+  const numberClass = 'w-6 flex-none text-center'
+  const highlightClass = 'bg-sbcOrange-500 font-medium'
+
+  return (
+    <div className="flex flex-col w-full divide-y divide-sbcBlue-500 border border-sbcBlue-500 text-sm text-sbcBlue-500">
+      <div className="flex divide-x divide-sbcBlue-500">
+        <div className="flex-auto"></div>
+        <div className={`${numberClass} ${highlightClass}`}>#</div>
+        <div className={numberClass}>W</div>
+        <div className={numberClass}>G</div>
+        <div className={numberClass}>V</div>
+        <div className={`${numberClass} ${highlightClass}`}>P</div>
+        <div className={numberClass}>DV</div>
+        <div className={numberClass}>DS</div>
+        <div className={`${numberClass} ${highlightClass}`}>S</div>
+      </div>
+      {scores.map((score, i) => (
+        <div key={i} className="flex divide-x divide-sbcBlue-500">
+          <div className="flex-auto truncate">
+            {score.rank}. {score.team.name}
+          </div>
+          <div className={`${numberClass} ${highlightClass}`}>
+            {score.played}
+          </div>
+          <div className={numberClass}>{score.wins}</div>
+          <div className={numberClass}>{score.draws}</div>
+          <div className={numberClass}>{score.losses}</div>
+          <div className={`${numberClass} ${highlightClass}`}>
+            {score.points}
+          </div>
+          <div className={numberClass}>{score.goals}</div>
+          <div className={numberClass}>{score.goalsAgainst}</div>
+          <div className={`${numberClass} ${highlightClass}`}>
+            {score.goalDifference}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 }

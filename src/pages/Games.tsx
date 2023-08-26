@@ -48,7 +48,7 @@ export default function Games() {
             >
               {gameDays.map(({ date, games }) => (
                 <div key={date}>
-                  <h3 className="sticky top-0 bg-sbcOrange-500 text-sbcBlue-500 text-center text-xl leading-10">
+                  <h3 className="sticky top-0 bg-sbcOrange-500 text-sbcBlue-500 text-center text-lg leading-10">
                     {date}
                   </h3>
                   <GameTable games={games}></GameTable>
