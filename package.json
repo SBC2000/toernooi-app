@@ -47,5 +47,8 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "https://app.sbctoernooien.nl"
+  "proxy": "https://app.sbctoernooien.nl",
+  "devDependencies": {
+    "tailwindcss": "^3.3.3"
+  }
 }
