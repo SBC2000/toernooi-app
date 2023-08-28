@@ -2,31 +2,30 @@ import { Link } from 'react-router-dom'
 
 import './Home.css'
 
+import AppPage from '../components/AppPage'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
 
 export default function Home() {
   return (
-    <div className="w-screen h-screen flex justify-center">
-      <div className="flex flex-col w-full max-w-md h-screen">
-        <Header title="Home" hideBackButton={true}></Header>
-        <div className="h-full p-4 home-background text-sbcBlue-500 text-center text-lg">
-          <div className="h-full flex flex-col justify-evenly items-center home-player">
-            <BlockLink
-              to="/games"
-              title="Wedstrijden"
-              className="home-icon-games"
-            ></BlockLink>
-            <BlockLink
-              to="/tables"
-              title="Standen"
-              className="home-icon-tables"
-            ></BlockLink>
-          </div>
+    <AppPage>
+      <Header title="Home" hideBackButton={true}></Header>
+      <div className="h-full p-4 home-background text-sbcBlue-500 text-center text-lg">
+        <div className="h-full flex flex-col justify-evenly items-center home-player">
+          <BlockLink
+            to="/games"
+            title="Wedstrijden"
+            className="home-icon-games"
+          ></BlockLink>
+          <BlockLink
+            to="/tables"
+            title="Standen"
+            className="home-icon-tables"
+          ></BlockLink>
         </div>
-        <Footer></Footer>
       </div>
-    </div>
+      <Footer></Footer>
+    </AppPage>
   )
 }
 
