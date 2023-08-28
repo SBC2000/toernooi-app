@@ -4,6 +4,7 @@ import {
   useEffect,
   useState,
   ReactNode,
+  useCallback,
 } from 'react'
 
 import {
@@ -43,49 +44,58 @@ export const DatabaseContextProvider = ({
       : emptyDatabase
   })
 
-  const refresh = () => {
-    const fetchData = async () => {
-      const {
-        databaseVersion,
-        dataVersion,
-        messageVersion,
-        resultVersion,
-        sponsorsVersion,
-      } = database.metadata
+  useEffect(() => {
+    localStorage.setItem(
+      localStorageKey,
+      // Serializing the databse is hard because of all the internal references
+      // We already know how to deserialize API results, so use that as an intermediate state
+      JSON.stringify(toApiResult(database))
+    )
+  }, [database])
 
-      const response = await fetch(
-        `/getData.php?databaseversion=${databaseVersion}&dataversion=${dataVersion}&messageversion=${messageVersion}&resultversion=${resultVersion}&sponsorsversion=${sponsorsVersion}`
+  const {
+    databaseVersion,
+    dataVersion,
+    messageVersion,
+    resultVersion,
+    sponsorsVersion,
+  } = database.metadata
+
+  const refresh = useCallback(() => {
+    const fetchData = async () => {
+      const response = await fetchWithTimeout(
+        `/getData.php?databaseversion=${databaseVersion}&dataversion=${dataVersion}&messageversion=${messageVersion}&resultversion=${resultVersion}&sponsorsversion=${sponsorsVersion}`,
+        10000
       )
 
       if (!response.ok) throw new Error(response.statusText)
 
       const apiResult: ApiResult = await response.json()
 
-      const newDatabase = parseApiResult(apiResult, database)
+      setDatabase((database) => {
+        const newDatabase = parseApiResult(apiResult, database)
 
-      // Serializing the databse is hard because of all the internal references
-      // We already know how to deserialize API results, so use that as an intermediate state
-      localStorage.setItem(
-        localStorageKey,
-        JSON.stringify(toApiResult(newDatabase))
-      )
+        const databaseHasChanged = (
+          ['databaseVersion', 'dataVersion', 'resultVersion'] as const
+        ).some((p) => newDatabase.metadata[p] !== database.metadata[p])
 
-      setDatabase(newDatabase)
+        return databaseHasChanged ? newDatabase : database
+      })
     }
 
     fetchData().catch(console.error)
-  }
+  }, [
+    databaseVersion,
+    dataVersion,
+    messageVersion,
+    resultVersion,
+    sponsorsVersion,
+  ])
 
-  useEffect(
-    refresh,
-    /* eslint-disable react-hooks/exhaustive-deps */
-    [
-      database.metadata.databaseVersion,
-      database.metadata.dataVersion,
-      database.metadata.resultVersion,
-    ]
-    /* eslint-enable */
-  )
+  useEffect(() => {
+    const interval = setInterval(refresh, 30000)
+    return () => clearInterval(interval)
+  }, [refresh])
 
   return (
     <databaseContext.Provider value={{ database, refresh }}>
@@ -305,4 +315,18 @@ function formatDate(date: Date): string {
   ].map((x) => `0${x}`.slice(-2))
 
   return `${DD}-${MM}-${date.getFullYear()} ${HH}:${mm}:${ss}`
+}
+
+async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  timeout: number = 30000
+): Promise<Response> {
+  const { signal, abort } = new AbortController()
+  const timeoutId = setTimeout(() => abort(), timeout)
+
+  try {
+    return await fetch(input, { signal })
+  } finally {
+    clearTimeout(timeoutId)
+  }
 }
