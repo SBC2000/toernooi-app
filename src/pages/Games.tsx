@@ -20,6 +20,8 @@ export default function Games() {
     useRef<HTMLDivElement>(null),
   ]
 
+  console.log('Render games')
+
   return (
     <div className="w-screen h-screen flex justify-center">
       <div className="flex flex-col w-full max-w-md">
@@ -49,7 +51,7 @@ export default function Games() {
               <div className="sticky top-0 bg-white w-full">
                 <div
                   className="bg-sbcOrange-500 w-1/4 h-1"
-                  style={{ marginLeft: `${i * 25}vw` }}
+                  style={{ marginLeft: `${i * 25}%` }}
                 ></div>
               </div>
               {gameDays.map(({ date, games }) => (

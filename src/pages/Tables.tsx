@@ -48,7 +48,7 @@ export default function Standings() {
               <div className="sticky top-0 bg-white w-full">
                 <div
                   className="bg-sbcOrange-500 w-1/3 h-1"
-                  style={{ marginLeft: `${i * 33.3333}vw` }}
+                  style={{ marginLeft: `${i * 33.3333}%` }}
                 ></div>
               </div>
               {scoresByPool.map(({ pool, scores }) => (
